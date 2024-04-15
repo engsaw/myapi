@@ -2,45 +2,69 @@ package com.sherif.myapi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverRecord;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class KafkaConsumerService {
 
-    @Autowired
-    private KafkaReceiver<String, String> kafkaReceiver;
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerService.class);
+
+    private final KafkaReceiver<String, String> kafkaReceiver;
+    private final MessageRepository messageRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private Disposable subscription;
 
     @Autowired
-    private MessageRepository messageRepository;
-
     public KafkaConsumerService(KafkaReceiver<String, String> kafkaReceiver, MessageRepository messageRepository) {
         this.kafkaReceiver = kafkaReceiver;
         this.messageRepository = messageRepository;
     }
 
-    private Mono<Void> processBatch(List<ReceiverRecord<String, String>> batch) {
-        return Flux.fromIterable(batch)
-                .doOnNext(record -> {
-                    System.out.println("Processed message: " + record.value());
-                    // Assume record.value() is JSON string that includes a username
-                    System.out.println(record);
-                    Message message = new Message(record.key(), record.value());  // default username
-                    messageRepository.save(message);  // Save to database
-                    record.receiverOffset().acknowledge();
+    private Mono<Void> processRecord(ReceiverRecord<String, String> record) {
+        return Mono.fromCallable(() -> {
+                    LOGGER.info("Processing message: {}", record.value());
+                    Message message;
+                    try {
+                        message = objectMapper.readValue(record.value(), Message.class);
+                    } catch (JsonProcessingException e) {
+                        LOGGER.error("Error processing message: {}", record.value(), e);
+                        throw new RuntimeException("Error processing message", e);
+                    }
+                    return message;
                 })
-                .then();
+                .publishOn(Schedulers.boundedElastic())
+                .doOnNext(messageRepository::save) // Using method reference
+                .then(Mono.fromRunnable(record.receiverOffset()::acknowledge)) // Correctly return Mono<Void>
+                .then(); // Ensure the final return type is Mono<Void>
     }
 
+
+
+
+    @PostConstruct
     public void consumeMessages() {
-        kafkaReceiver.receive()
-                .buffer(100)
-                .flatMap(this::processBatch)
-                .cache()
+        subscription = kafkaReceiver.receive()
+                .flatMap(record -> processRecord(record).onErrorResume(e -> Mono.empty()))
                 .subscribe();
     }
+
+    @PreDestroy
+    public void stop() {
+        if (subscription != null && !subscription.isDisposed()) {
+            subscription.dispose();
+        }
+    }
+
+
 }

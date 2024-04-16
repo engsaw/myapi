@@ -1,5 +1,5 @@
-# Use the official Maven image to build the project
-FROM maven:3.8.4-openjdk-11-slim AS build
+# Use the official Maven image with JDK 17 to build the project
+FROM maven:3.8.4-openjdk-17 AS build
 
 # Copy the project files to the container
 COPY src /home/app/src
@@ -11,8 +11,8 @@ WORKDIR /home/app
 # Build the application
 RUN mvn clean package
 
-# Use OpenJDK 11 slim image for a smaller image size
-FROM openjdk:11-jre-slim
+# Use OpenJDK 17 slim image for running the application
+FROM openjdk:17-slim
 
 # Copy the built JAR file from the build stage
 COPY --from=build /home/app/target/*.jar /usr/local/lib/myapi.jar

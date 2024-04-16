@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y git \
 # Change working directory to the cloned repository
 WORKDIR /app/myapi
 
+
+RUN ls
 # Build the Spring Boot application
 RUN mvn clean package -DskipTests
 
@@ -27,4 +29,4 @@ COPY --from=builder /app/myapi/target/myapi.jar .
 EXPOSE 8080
 
 # Command to run the Spring Boot application
-CMD ["java", "-jar", "myapi.jar"]
+CMD ["/bash"]

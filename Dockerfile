@@ -1,5 +1,5 @@
 # Use a base image with JDK and Maven installed to build the Spring Boot application
-FROM maven:3.8.4-openjdk-11-slim AS builder
+FROM adoptopenjdk/openjdk11:jre-11.0.12_7-jdk-hotspot-focal AS builder
 
 # Set the working directory in the container
 WORKDIR /app
@@ -9,10 +9,10 @@ RUN apt-get update && apt-get install -y git \
     && git clone https://github.com/engsaw/myapi.git .
 
 # Build the Spring Boot application
-RUN mvn clean package
+RUN ./mvnw clean package -DskipTests
 
 # Use a lightweight base image with JRE to run the Spring Boot application
-FROM adoptopenjdk/openjdk11:jre-11.0.12_7-alpine
+FROM adoptopenjdk/openjdk11:jre-11.0.12_7-jdk-hotspot-focal
 
 # Set the working directory in the container
 WORKDIR /app

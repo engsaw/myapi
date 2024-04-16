@@ -1,5 +1,7 @@
-package com.sherif.myapi;
+package com.sherif.myapi.service;
 
+import com.sherif.myapi.model.Message;
+import com.sherif.myapi.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
@@ -33,7 +35,6 @@ public class KafkaConsumerService {
 
     private Mono<Void> processRecord(ReceiverRecord<String, String> record) {
         return Mono.fromCallable(() -> {
-                    LOGGER.info("Processing message: {}", record.value());
                     Message message;
                     try {
                         message = objectMapper.readValue(record.value(), Message.class);
@@ -54,9 +55,12 @@ public class KafkaConsumerService {
 
     @PostConstruct
     public void consumeMessages() {
+        LOGGER.info("Starting to subscribe");
         subscription = kafkaReceiver.receive()
                 .flatMap(record -> processRecord(record).onErrorResume(e -> Mono.empty()))
                 .subscribe();
+        LOGGER.info("Subscribed successfully");
+
     }
 
     @PreDestroy

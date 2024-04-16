@@ -1,4 +1,4 @@
-package com.sherif.myapi;
+package com.sherif.myapi.service;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;

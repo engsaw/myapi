@@ -1,4 +1,4 @@
-package com.sherif.myapi;
+package com.sherif.myapi.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

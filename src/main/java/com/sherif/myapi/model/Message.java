@@ -1,4 +1,4 @@
-package com.sherif.myapi;
+package com.sherif.myapi.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;

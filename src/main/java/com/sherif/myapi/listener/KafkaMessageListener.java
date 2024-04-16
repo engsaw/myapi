@@ -1,5 +1,6 @@
-package com.sherif.myapi;
+package com.sherif.myapi.listener;
 
+import com.sherif.myapi.service.KafkaConsumerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

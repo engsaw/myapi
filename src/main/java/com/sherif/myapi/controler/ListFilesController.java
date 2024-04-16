@@ -1,5 +1,6 @@
-package com.sherif.myapi;
+package com.sherif.myapi.controler;
 
+import com.sherif.myapi.service.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ public class ListFilesController {
     @PostMapping("/send")
     public String sendMessage(@RequestBody String payload) {
         producerService.sendMessage("test-topic", "message", payload);
-        return "Message sent!";
+        return "Message sent!" + payload;
     }
 }
 

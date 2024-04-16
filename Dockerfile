@@ -24,4 +24,4 @@ COPY --from=builder /app/target/myapi.jar .
 EXPOSE 8080
 
 # Command to run the Spring Boot application
-CMD ["java", "-jar", "myapi.jar"]
+CMD ["mvnw", "spring-boot:run"]

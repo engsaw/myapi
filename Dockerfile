@@ -9,7 +9,7 @@ COPY pom.xml /home/app
 WORKDIR /home/app
 
 # Build the application
-RUN mvnw clean package
+RUN mvn clean package
 
 # Use OpenJDK 11 slim image for a smaller image size
 FROM openjdk:11-jre-slim

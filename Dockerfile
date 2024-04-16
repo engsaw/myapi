@@ -1,32 +1,24 @@
-# Use a base image with Maven and JDK to build the Spring Boot application
-FROM maven:3.8.4-openjdk-11-slim AS builder
+# Use the official Maven image to build the project
+FROM maven:3.8.4-openjdk-11-slim AS build
 
-# Set the working directory in the container
-WORKDIR /app
+# Copy the project files to the container
+COPY src /home/app/src
+COPY pom.xml /home/app
 
-# Clone the repository
-RUN apt-get update && apt-get install -y git \
-    && git clone https://github.com/engsaw/myapi.git .
+# Set the working directory
+WORKDIR /home/app
 
-# Change working directory to the cloned repository
-WORKDIR /app/myapi
+# Build the application
+RUN mvn clean package
 
+# Use OpenJDK 11 slim image for a smaller image size
+FROM openjdk:11-jre-slim
 
-RUN ls
-# Build the Spring Boot application
-RUN mvn clean package -DskipTests
+# Copy the built JAR file from the build stage
+COPY --from=build /home/app/target/*.jar /usr/local/lib/myapi.jar
 
-# Use a lightweight base image with JRE to run the Spring Boot application
-FROM adoptopenjdk/openjdk11:jre-11.0.12_7-jdk-hotspot-focal
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy the built JAR file from the builder stage to the current location in the container
-COPY --from=builder /app/myapi/target/myapi.jar .
-
-# Expose the port that the Spring Boot application will run on
+# Expose port 8080 for the application
 EXPOSE 8080
 
-# Command to run the Spring Boot application
-CMD ["/bash"]
+# Command to run the application
+ENTRYPOINT ["java", "-jar", "/usr/local/lib/myapi.jar"]

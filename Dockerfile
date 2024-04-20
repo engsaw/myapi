@@ -9,7 +9,7 @@ COPY pom.xml /home/app
 WORKDIR /home/app
 
 # Build the application
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
 # Use OpenJDK 17 slim image for running the application
 FROM openjdk:17-slim

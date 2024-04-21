@@ -1,24 +1,10 @@
 pipeline {
-    agent none // No global agent specified
+    agent any
     stages {
-        stage('Build and Deploy') {
+        stage('Deploy to Kubernetes') {
             steps {
-                // Using the Kubernetes plugin's fluent API to configure the pod
-                script {
-                    kubernetes.pod('kubectl-pod').withPrivileged(true).withImage('lachlanevenson/k8s-kubectl').inside {
-                        stage('Pre-Check') {
-                            // Checking kubectl client version
-                            sh 'kubectl version --client'
-                        }
-                        stage('Checkout') {
-                            // Cloning the SCM
-                            git 'https://github.com/your-repository-url/your-repo.git'
-                        }
-                        stage('Deploy to Kubernetes') {
-                            // Applying Kubernetes deployment YAML
-                            sh 'kubectl apply -f my-kubernetes-deployment.yaml'
-                        }
-                    }
+                withKubeConfig(credentialsId: 'jenkins-k8s-sa', serverUrl: 'https://kubernetes.default.svc') {
+                    sh 'kubectl apply -f my-kubernetes-directory/'
                 }
             }
         }

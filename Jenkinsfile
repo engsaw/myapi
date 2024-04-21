@@ -9,7 +9,8 @@ pipeline {
                         sh '''
                         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                         chmod +x ./kubectl
-                        mv ./kubectl /usr/local/bin/kubectl
+                        mkdir -p ~/bin
+                        mv ./kubectl ~/bin/
                         '''
                     }
                 }
@@ -18,7 +19,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withKubeConfig(credentialsId: 'jenkins-k8s-sa', serverUrl: 'https://kubernetes.default.svc') {
-                    sh 'kubectl apply -f myapi-kubernetes.yaml'
+                    sh '~/bin/kubectl apply -f myapi-kubernetes.yaml'
                 }
             }
         }

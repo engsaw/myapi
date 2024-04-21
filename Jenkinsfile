@@ -18,8 +18,12 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             steps {
-                withKubeConfig(credentialsId: 'jenkins-k8s-sa', serverUrl: 'https://kubernetes.default.svc') {
-                    sh '~/bin/kubectl apply -f myapi-kubernetes.yaml'
+                script {
+                    // Configure kubectl with the Jenkins service account credentials
+                    withKubeConfig(credentialsId: 'jenkins-k8s-sa', serverUrl: 'https://kubernetes.default.svc') {
+                        // Use kubectl to apply the YAML file
+                        sh '~/bin/kubectl apply -f myapi-kubernetes.yaml'
+                    }
                 }
             }
         }

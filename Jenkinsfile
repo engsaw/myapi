@@ -1,26 +1,24 @@
 pipeline {
-    agent any
-    environment {
-        // Assuming kubectl is installed in /usr/local/bin
-        PATH = "${env.PATH}:/usr/local/bin"
-    }
+    agent none // No global agent specified
     stages {
-        stage('Pre-Check') {
+        stage('Build and Deploy') {
             steps {
+                // Using the Kubernetes plugin's fluent API to configure the pod
                 script {
-                    sh 'kubectl version --client'
-                }
-            }
-        }
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    sh 'kubectl apply -f my-kubernetes-deployment.yaml'
+                    kubernetes.pod('kubectl-pod').withPrivileged(true).withImage('lachlanevenson/k8s-kubectl').inside {
+                        stage('Pre-Check') {
+                            // Checking kubectl client version
+                            sh 'kubectl version --client'
+                        }
+                        stage('Checkout') {
+                            // Cloning the SCM
+                            git 'https://github.com/your-repository-url/your-repo.git'
+                        }
+                        stage('Deploy to Kubernetes') {
+                            // Applying Kubernetes deployment YAML
+                            sh 'kubectl apply -f my-kubernetes-deployment.yaml'
+                        }
+                    }
                 }
             }
         }

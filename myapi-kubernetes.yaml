@@ -158,3 +158,15 @@ spec:
       targetPort: 8080
   selector:
     app: myapi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapi-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: myapi

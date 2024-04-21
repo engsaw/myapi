@@ -19,10 +19,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Configure kubectl with the Jenkins service account credentials
-                    withKubeConfig(credentialsId: 'jenkins-k8s-sa', serverUrl: 'https://kubernetes.default.svc') {
-                        // Use kubectl to apply the YAML file
-                        sh '~/bin/kubectl apply -f myapi-kubernetes.yaml'
+                    // Configure kubectl with the Kubernetes API server URL and Jenkins service account credentials
+                    withKubeConfig(credentialsId: 'jenkins-k8s-sa', serverUrl: 'https://917f0e0a-ab07-4b94-a298-c72a87ee6446.k8s.ondigitalocean.com') {
+                        // Use kubectl to apply the YAML file with validation disabled
+                        sh '~/bin/kubectl apply -f myapi-kubernetes.yaml --validate=false'
                     }
                 }
             }

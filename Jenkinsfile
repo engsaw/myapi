@@ -16,18 +16,16 @@ pipeline {
                 }
             }
         }
-        stage('Build and Push Docker Image') {
             steps {
                 script {
-                    // Login to Docker Hub
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    // Building the Docker image
-                    sh 'docker build -t $DOCKER_IMAGE:$BUILD_ID .'
-                    // Pushing the Docker image
-                    sh 'docker push $DOCKER_IMAGE:$BUILD_ID'
+                    // Use credentials to log in to Docker
+                    withCredentials([usernamePassword(credentialsId: 'dockerHubCreds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                        sh 'docker build -t myrepo/myapp:$BUILD_ID .'
+                        sh 'docker push myrepo/myapp:$BUILD_ID'
+                    }
                 }
             }
-        }
         stage('Deploy to Kubernetes') {
             steps {
                 script {

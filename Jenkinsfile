@@ -22,13 +22,15 @@ pipeline {
         }
         stage('Build and Publish Docker Image') {
             steps {
-                dockerBuildAndPublish {
-                    registryUrl("${DOCKER_REGISTRY}")
-                    registryCredentialsId("${DOCKER_REGISTRY_CREDENTIALS_ID}")
-                    repositoryName("${DOCKER_IMAGE}")
-                    tag("${env.BUILD_ID}")
-                    dockerfile("Dockerfile")
-                    buildContext(".")
+                script {
+                    dockerBuildAndPublish {
+                        registryUrl "${DOCKER_REGISTRY}"
+                        registryCredentialsId "${DOCKER_REGISTRY_CREDENTIALS_ID}"
+                        repositoryName "${DOCKER_IMAGE}"
+                        tag "${env.BUILD_ID}"
+                        dockerFile "Dockerfile"  // Corrected the case and parameter usage here
+                        buildContext "."
+                    }
                 }
             }
         }

@@ -24,11 +24,11 @@ pipeline {
             steps {
                 script {
                     dockerBuildAndPublish {
-                        repositoryName('sherifs82/myapi:v1') ,
-                        registry('https://index.docker.io/v1/'),
-                        registryCredentialsId ('${DOCKER_REGISTRY_CREDENTIALS_ID}'),
-                        tag: ('${env.BUILD_ID}'),
-                        buildContext('.'),
+                        repositoryName('${DOCKER_IMAGE}') 
+                        registry('${DOCKER_REGISTRY}')
+                        registryCredentialsId ('${DOCKER_REGISTRY_CREDENTIALS_ID}')
+                        tag: ('${env.BUILD_ID}')
+                        buildContext('.')
                         dockerfile('./Dockerfile)'
                     }
                 }

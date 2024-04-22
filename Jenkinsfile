@@ -23,13 +23,8 @@ pipeline {
         stage('Build and Publish Docker Image') {
             steps {
                 script {
-                    dockerBuildAndPublish {
-                        repositoryName('${DOCKER_IMAGE}') 
-                        registry('${DOCKER_REGISTRY}')
-                        registryCredentialsId ('${DOCKER_REGISTRY_CREDENTIALS_ID}')
-                        tag: ('${env.BUILD_ID}')
-                        buildContext('.')
-                        dockerfile('./Dockerfile)'
+                    docker.withRegistry("${DOCKER_REGISTRY}", "${DOCKER_REGISTRY_CREDENTIALS_ID}") {
+                        docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}", "-f ./Dockerfile .").push()
                     }
                 }
             }

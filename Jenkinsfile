@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'myrepo/myapp'
+        DOCKER_IMAGE = 'sherifs82/myapi:v1'
     }
     stages {
         stage('Setup kubectl') {
@@ -22,7 +22,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerHubCreds') {
-                        docker.build("${env.DOCKER_IMAGE}:${env.BUILD_ID}").push()
+                        def customImage = docker.build("${env.DOCKER_IMAGE}:${env.BUILD_ID}")
+                        customImage.push()
                     }
                 }
             }

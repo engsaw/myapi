@@ -22,13 +22,15 @@ pipeline {
         }
         stage('Build and Publish Docker Image') {
             steps {
-                dockerBuildAndPublish {
-                    repositoryName("${DOCKER_IMAGE}")
-                    registry("${DOCKER_REGISTRY}")
-                    registryCredentialsId("${DOCKER_REGISTRY_CREDENTIALS_ID}")
-                    tag("${env.BUILD_ID}")
-                    buildContext('./')
-                    dockerfile('./Dockerfile')
+                script {
+                    dockerBuildAndPublish by: [
+                        repositoryName: "${DOCKER_IMAGE}",
+                        registry: "${DOCKER_REGISTRY}",
+                        registryCredentialsId: "${DOCKER_REGISTRY_CREDENTIALS_ID}",
+                        tag: "${env.BUILD_ID}",
+                        buildContext: '.',
+                        dockerfile: './Dockerfile'
+                    ]
                 }
             }
         }

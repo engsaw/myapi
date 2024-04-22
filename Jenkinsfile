@@ -2,6 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'sherifs82/myapi:v1'
+        DOCKER_REGISTRY = 'https://index.docker.io/v1/'
+        DOCKER_REGISTRY_CREDENTIALS_ID = 'dockerHubCreds'
     }
     stages {
         stage('Setup kubectl') {
@@ -18,13 +20,15 @@ pipeline {
                 }
             }
         }
-        stage('Build and Push Docker Image') {
+        stage('Build and Publish Docker Image') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerHubCreds') {
-                        def customImage = docker.build("${env.DOCKER_IMAGE}:${env.BUILD_ID}")
-                        customImage.push()
-                    }
+                dockerBuildAndPublish {
+                    repositoryName("${DOCKER_IMAGE}")
+                    registry("${DOCKER_REGISTRY}")
+                    registryCredentialsId("${DOCKER_REGISTRY_CREDENTIALS_ID}")
+                    tag("${env.BUILD_ID}")
+                    buildContext('./')
+                    dockerfile('./Dockerfile')
                 }
             }
         }

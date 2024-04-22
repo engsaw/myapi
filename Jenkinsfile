@@ -16,6 +16,18 @@ pipeline {
                 }
             }
         }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Login to Docker Hub
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    // Building the Docker image
+                    sh 'docker build -t $DOCKER_IMAGE:$BUILD_ID .'
+                    // Pushing the Docker image
+                    sh 'docker push $DOCKER_IMAGE:$BUILD_ID'
+                }
+            }
+        }
         stage('Deploy to Kubernetes') {
             steps {
                 script {
